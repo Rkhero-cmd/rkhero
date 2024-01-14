@@ -1,0 +1,41 @@
+---
+- name: Clone GitHub repository
+  hosts: ansible_master
+  become: true
+  tasks:
+    - name: Clone repository
+      git:
+        repo: https://github.com/Sameer-8080/Website-PRT-ORG.git
+        dest: /path/to/clone/repo
+
+- name: Install nginx on Slave 1 and apache2 on Slave 2
+  hosts: ansible_slaves
+  become: true
+  tasks:
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+      when: inventory_hostname == "ansible_slave_1"
+
+    - name: Install apache2
+      apt:
+        name: apache2
+        state: present
+      when: inventory_hostname == "ansible_slave_2"
+
+- name: Replace index.html on Slave 1 and Slave 2
+  hosts: ansible_slaves
+  become: true
+  tasks:
+    - name: Replace index.html for nginx
+      copy:
+        src: /path/to/clone/repo/index_nginx.html
+        dest: /var/www/html/index.html
+      when: inventory_hostname == "ansible_slave_1"
+
+    - name: Replace index.html for apache2
+      copy:
+        src: /path/to/clone/repo/index_apache.html
+        dest: /var/www/html/index.html
+      when: inventory_hostname == "ansible_slave_2"
